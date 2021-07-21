@@ -130,6 +130,18 @@ Polaris为Discovery高级定制版，特色功能
 
 ## 简介
 
+### 诞生故事
+- 2017年12月开始筹划
+- 2018年03月开始编码
+- 2018年06月在GitHub开源
+- 2018年06月发布v1.0.0，支持Camden版
+- 2018年06月发布v2.0.0，支持Dalston版
+- 2018年07月发布v3.0.0，支持Edgware版
+- 2018年07月发布v4.0.0，支持Finchley版
+- 2019年04月发布v5.0.0，支持Greenwich版
+- 2020年04月发布v6.0.0，支持Hoxton版
+- 2021年04月完成v7.0.0，支持202x版
+
 ### 功能概述
 Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba，Discovery服务注册发现、Ribbon & Spring Cloud LoadBalancer负载均衡、Feign & RestTemplate & WebClient调用、Spring Cloud Gateway & Zuul过滤等组件全方位增强的企业级微服务开源解决方案，更贴近企业级需求，更具有企业级的插件引入、开箱即用特征
 
@@ -220,6 +232,7 @@ Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba
 - 全链路监控
     - 蓝绿灰度埋点和熔断埋点的调用链监控
     - 蓝绿灰度埋点和熔断埋点的日志监控
+    - 熔断埋点的指标监控
 - 全链路服务侧注解
 - 全链路服务侧API权限
 - 元数据流量染色
@@ -480,6 +493,13 @@ Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba
       <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/ClickPaaS.png"></td>
       <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/Ping++.png"></td>
     </tr>
+    <tr align="center">
+      <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/云尚找家纺.png"></td>
+      <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/威诺科技.png"></td>
+      <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/蜀海供应链.png"></td>
+      <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/中天置地.png"></td>
+      <td width="20%"><img style="max-height:75%;max-width:75%;" src="http://nepxion.gitee.io/discovery/docs/logo-doc/万顺叫车.png"></td>
+    </tr>
   </tbody>
 </table>
 
@@ -498,6 +518,7 @@ Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba
 
 ## 目录
 - [简介](#简介)
+    - [诞生故事](#诞生故事)
     - [功能概述](#功能概述)
     - [版本列表](#版本列表)
     - [郑重致谢](#郑重致谢)
@@ -637,6 +658,8 @@ Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba
         - [自定义埋点调用链监控](#自定义埋点调用链监控)
     - [全链路日志监控](#全链路日志监控)
         - [蓝绿灰度埋点日志监控](#蓝绿灰度埋点日志监控)
+    - [全链路指标监控](#全链路指标监控)
+        - [Sentinel熔断指标监控](#Sentinel熔断指标监控)
     - [全链路告警监控](#全链路告警监控)
         - [蓝绿灰度告警监控](#蓝绿灰度告警监控)
 - [全链路服务侧注解](#全链路服务侧注解)
@@ -670,6 +693,8 @@ Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba
     - [测试环境](#测试环境)
     - [测试介绍](#测试介绍)
     - [测试步骤](#测试步骤)
+- [附录](#附录)
+    - [中间件服务器下载地址](#中间件服务器下载地址)
 - [Star走势图](#Star走势图)
 
 ## 主页链接
@@ -746,6 +771,7 @@ Discovery【探索】微服务框架，基于Spring Cloud & Spring Cloud Alibaba
 | &nbsp;&nbsp;<img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_west.png"> discovery-plugin-strategy-starter-sentinel-opentelemetry | 策略的Sentinel OpenTelemetry调用链的Starter |
 | &nbsp;&nbsp;<img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_west.png"> discovery-plugin-strategy-starter-sentinel-opentracing | 策略的Sentinel OpenTracing调用链的Starter |
 | &nbsp;&nbsp;<img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_west.png"> discovery-plugin-strategy-starter-sentinel-skywalking | 策略的Sentinel SkyWalking调用链的Starter |
+| &nbsp;&nbsp;<img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_west.png"> discovery-plugin-strategy-starter-sentinel-micrometer | 策略的Sentinel Micrometer指标的Starter |
 | <img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_south.png"> discovery-plugin-test | 测试模块目录 |
 | &nbsp;&nbsp;<img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_west.png"> discovery-plugin-test-starter-automation| 自动化测试的Starter |
 | <img src="http://nepxion.gitee.io/discovery/docs/icon-doc/direction_south.png"> discovery-console | 控制平台目录 |
@@ -2075,10 +2101,10 @@ public class MyGatewayStrategyRouteFilter extends DefaultGatewayStrategyRouteFil
     public String getRouteVersion() {
         LOG.info("自定义全链路版本权重路由");
 
-        List<Pair<String, Double>> weightList = new ArrayList<Pair<String, Double>>();
-        weightList.add(new ImmutablePair<String, Double>(aRouteVersion, 30D));
-        weightList.add(new ImmutablePair<String, Double>(bRouteVersion, 70D));
-        MapWeightRandom<String, Double> weightRandom = new MapWeightRandom<String, Double>(weightList);
+        List<Pair<String, Integer>> weightList = new ArrayList<Pair<String, Integer>>();
+        weightList.add(new ImmutablePair<String, Integer>(aRouteVersion, 30));
+        weightList.add(new ImmutablePair<String, Integer>(bRouteVersion, 70));
+        MapWeightRandom<String, Integer> weightRandom = new MapWeightRandom<String, Integer>(weightList);
 
         return weightRandom.random();
     }*/
@@ -2210,10 +2236,10 @@ public class MyZuulStrategyRouteFilter extends DefaultZuulStrategyRouteFilter {
     public String getRouteVersion() {
         LOG.info("自定义全链路版本权重路由");
 
-        List<Pair<String, Double>> weightList = new ArrayList<Pair<String, Double>>();
-        weightList.add(new ImmutablePair<String, Double>(aRouteVersion, 30D));
-        weightList.add(new ImmutablePair<String, Double>(bRouteVersion, 70D));
-        MapWeightRandom<String, Double> weightRandom = new MapWeightRandom<String, Double>(weightList);
+        List<Pair<String, Integer>> weightList = new ArrayList<Pair<String, Integer>>();
+        weightList.add(new ImmutablePair<String, Integer>(aRouteVersion, 30));
+        weightList.add(new ImmutablePair<String, Integer>(bRouteVersion, 70));
+        MapWeightRandom<String, Integer> weightRandom = new MapWeightRandom<String, Integer>(weightList);
 
         return weightRandom.random();
     }*/
@@ -2345,10 +2371,10 @@ public class MyServiceStrategyRouteFilter extends DefaultServiceStrategyRouteFil
     public String getRouteVersion() {
         LOG.info("自定义全链路版本权重路由");
 
-        List<Pair<String, Double>> weightList = new ArrayList<Pair<String, Double>>();
-        weightList.add(new ImmutablePair<String, Double>(aRouteVersion, 30D));
-        weightList.add(new ImmutablePair<String, Double>(bRouteVersion, 70D));
-        MapWeightRandom<String, Double> weightRandom = new MapWeightRandom<String, Double>(weightList);
+        List<Pair<String, Integer>> weightList = new ArrayList<Pair<String, Integer>>();
+        weightList.add(new ImmutablePair<String, Integer>(aRouteVersion, 30));
+        weightList.add(new ImmutablePair<String, Integer>(bRouteVersion, 70));
+        MapWeightRandom<String, Integer> weightRandom = new MapWeightRandom<String, Integer>(weightList);
 
         return weightRandom.random();
     }*/
@@ -4339,7 +4365,13 @@ Reject to invoke because of isolation with different service group
 
 ## 全链路服务限流熔断降级权限
 
-![](http://nepxion.gitee.io/discovery/docs/icon-doc/information.png) 由于如下功能早于Spring Cloud Alibaba Sentinel而产生，下述功能也可以通过Spring Cloud Alibaba Sentinel功能来实现
+集成Sentinel熔断隔离限流降级平台
+
+![](http://nepxion.gitee.io/discovery/docs/discovery-doc/Sentinel3.jpg)
+
+通过集成Sentinel，在服务端实现该功能
+
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information.png) 由于本功能早于Spring Cloud Alibaba Sentinel而产生，下述功能也可以通过Spring Cloud Alibaba Sentinel功能来实现
 
 Sentinel订阅配置中心的使用方式，如下
 
@@ -5008,6 +5040,29 @@ spring.application.strategy.tracer.sentinel.args.output.enabled=true
 </configuration>
 ```
 
+### 全链路指标监控
+
+#### Sentinel熔断指标监控
+全链路调用过程中，在实施端到端Sentinel熔断在不同场景下会触发如下四个事件
+- Pass
+- Block
+- Success
+- Exception
+
+通过Prometheus Micrometer对上述事件进行计数统计，可输出Grafana看板上
+
+使用者可以通过如下开关打开或者关闭输出功能项
+```
+# 启动和关闭Sentinel Metric通过次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.pass.qps.output.enabled=true
+# 启动和关闭Sentinel Metric阻塞次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.block.qps.output.enabled=true
+# 启动和关闭Sentinel Metric成功次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.success.qps.output.enabled=true
+# 启动和关闭Sentinel Metric异常次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.exception.qps.output.enabled=true
+```
+
 ### 全链路告警监控
 
 #### 蓝绿灰度告警监控
@@ -5489,6 +5544,8 @@ spring.application.register.control.enabled=true
 spring.application.discovery.control.enabled=true
 # 开启和关闭通过Rest方式对规则配置的控制和推送。一旦关闭，只能通过远程配置中心来控制和推送。缺失则默认为true
 spring.application.config.rest.control.enabled=true
+# 随机权重算法。缺失则默认为MapWeightRandom
+spring.application.weight.random.type=MapWeightRandom
 # 规则文件的格式，支持xml和json。缺失则默认为xml
 spring.application.config.format=xml
 # spring.application.config.format=json
@@ -5599,8 +5656,14 @@ spring.application.strategy.tracer.sentinel.rule.output.enabled=true
 # 启动和关闭Sentinel调用链上方法入参在Span上的输出。缺失则默认为false
 spring.application.strategy.tracer.sentinel.args.output.enabled=true
 
-# 开启服务端实现Hystrix线程隔离模式做服务隔离时，必须把spring.application.strategy.hystrix.threadlocal.supported设置为true，同时要引入discovery-plugin-strategy-starter-hystrix包，否则线程切换时会发生ThreadLocal上下文对象丢失。缺失则默认为false
-spring.application.strategy.hystrix.threadlocal.supported=true
+# 启动和关闭Sentinel Metric通过次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.pass.qps.output.enabled=true
+# 启动和关闭Sentinel Metric阻塞次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.block.qps.output.enabled=true
+# 启动和关闭Sentinel Metric成功次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.success.qps.output.enabled=true
+# 启动和关闭Sentinel Metric异常次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.exception.qps.output.enabled=true
 
 # 启动和关闭Sentinel限流降级熔断权限等原生功能的数据来源扩展。缺失则默认为false
 spring.application.strategy.sentinel.datasource.enabled=true
@@ -5659,6 +5722,9 @@ spring.application.git.generator.path=classpath:git.properties
 spring.application.git.version.key={git.commit.id.abbrev}-{git.commit.time}
 # spring.application.git.version.key={git.build.version}-{git.commit.time}
 
+# 开启服务端实现Hystrix线程隔离模式做服务隔离时，必须把spring.application.strategy.hystrix.threadlocal.supported设置为true，同时要引入discovery-plugin-strategy-starter-hystrix包，否则线程切换时会发生ThreadLocal上下文对象丢失。缺失则默认为false
+spring.application.strategy.hystrix.threadlocal.supported=true
+
 # 启动和关闭Swagger。缺失则默认为true
 swagger.service.enabled=true
 # Swagger基准Docket组名
@@ -5694,6 +5760,8 @@ spring.application.register.control.enabled=true
 spring.application.discovery.control.enabled=true
 # 开启和关闭通过Rest方式对规则配置的控制和推送。一旦关闭，只能通过远程配置中心来控制和推送。缺失则默认为true
 spring.application.config.rest.control.enabled=true
+# 随机权重算法。缺失则默认为MapWeightRandom
+spring.application.weight.random.type=MapWeightRandom
 # 规则文件的格式，支持xml和json。缺失则默认为xml
 spring.application.config.format=xml
 # spring.application.config.format=json
@@ -5768,8 +5836,14 @@ spring.application.strategy.tracer.sentinel.rule.output.enabled=true
 # 启动和关闭Sentinel调用链上方法入参在Span上的输出。缺失则默认为false
 spring.application.strategy.tracer.sentinel.args.output.enabled=true
 
-# 开启Spring Cloud Gateway网关上实现Hystrix线程隔离模式做服务隔离时，必须把spring.application.strategy.hystrix.threadlocal.supported设置为true，同时要引入discovery-plugin-strategy-starter-hystrix包，否则线程切换时会发生ThreadLocal上下文对象丢失。缺失则默认为false
-spring.application.strategy.hystrix.threadlocal.supported=true
+# 启动和关闭Sentinel Metric通过次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.pass.qps.output.enabled=true
+# 启动和关闭Sentinel Metric阻塞次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.block.qps.output.enabled=true
+# 启动和关闭Sentinel Metric成功次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.success.qps.output.enabled=true
+# 启动和关闭Sentinel Metric异常次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.exception.qps.output.enabled=true
 
 # 启动和关闭Sentinel限流降级熔断权限等原生功能的数据来源扩展。缺失则默认为false
 spring.application.strategy.sentinel.datasource.enabled=true
@@ -5865,6 +5939,9 @@ spring.application.strategy.web.client.core.header.transmission.enabled=true
 spring.application.strategy.context.request.headers=trace-id;span-id
 # 路由策略的时候，对REST方式调用拦截的时候（支持Feign、RestTemplate或者WebClient调用），希望把来自外部自定义的Header参数（用于业务系统自定义Header，例如：mobile）传递到服务里，那么配置如下值。如果多个用“;”分隔，不允许出现空格
 spring.application.strategy.business.request.headers=user;mobile;location
+
+# 开启Spring Cloud Gateway网关上实现Hystrix线程隔离模式做服务隔离时，必须把spring.application.strategy.hystrix.threadlocal.supported设置为true，同时要引入discovery-plugin-strategy-starter-hystrix包，否则线程切换时会发生ThreadLocal上下文对象丢失。缺失则默认为false
+spring.application.strategy.hystrix.threadlocal.supported=true
 ```
 
 ③ Zuul端配置
@@ -5876,6 +5953,8 @@ spring.application.register.control.enabled=true
 spring.application.discovery.control.enabled=true
 # 开启和关闭通过Rest方式对规则配置的控制和推送。一旦关闭，只能通过远程配置中心来控制和推送。缺失则默认为true
 spring.application.config.rest.control.enabled=true
+# 随机权重算法。缺失则默认为MapWeightRandom
+spring.application.weight.random.type=MapWeightRandom
 # 规则文件的格式，支持xml和json。缺失则默认为xml
 spring.application.config.format=xml
 # spring.application.config.format=json
@@ -5948,8 +6027,14 @@ spring.application.strategy.tracer.sentinel.rule.output.enabled=true
 # 启动和关闭Sentinel调用链上方法入参在Span上的输出。缺失则默认为false
 spring.application.strategy.tracer.sentinel.args.output.enabled=true
 
-# 开启Zuul网关上实现Hystrix线程隔离模式做服务隔离时，必须把spring.application.strategy.hystrix.threadlocal.supported设置为true，同时要引入discovery-plugin-strategy-starter-hystrix包，否则线程切换时会发生ThreadLocal上下文对象丢失。缺失则默认为false
-spring.application.strategy.hystrix.threadlocal.supported=true
+# 启动和关闭Sentinel Metric通过次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.pass.qps.output.enabled=true
+# 启动和关闭Sentinel Metric阻塞次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.block.qps.output.enabled=true
+# 启动和关闭Sentinel Metric成功次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.success.qps.output.enabled=true
+# 启动和关闭Sentinel Metric异常次数统计输出功能。缺失则默认为true
+spring.application.strategy.metric.sentinel.exception.qps.output.enabled=true
 
 # 启动和关闭Sentinel限流降级熔断权限等原生功能的数据来源扩展。缺失则默认为false
 spring.application.strategy.sentinel.datasource.enabled=true
@@ -5963,6 +6048,7 @@ spring.application.strategy.sentinel.authority.path=classpath:sentinel-authority
 spring.application.strategy.sentinel.system.path=classpath:sentinel-system.json
 # 热点参数流控规则文件路径。缺失则默认为classpath:sentinel-param-flow.json
 spring.application.strategy.sentinel.param.flow.path=classpath:sentinel-param-flow.json
+
 
 # 流量路由到指定的环境下。不允许为保留值default，缺失则默认为common
 spring.application.strategy.environment.route=common
@@ -6042,6 +6128,9 @@ spring.application.strategy.web.client.core.header.transmission.enabled=true
 spring.application.strategy.context.request.headers=trace-id;span-id
 # 路由策略的时候，对REST方式调用拦截的时候（支持Feign、RestTemplate或者WebClient调用），希望把来自外部自定义的Header参数（用于业务系统自定义Header，例如：mobile）传递到服务里，那么配置如下值。如果多个用“;”分隔，不允许出现空格
 spring.application.strategy.business.request.headers=user;mobile;location
+
+# 开启Zuul网关上实现Hystrix线程隔离模式做服务隔离时，必须把spring.application.strategy.hystrix.threadlocal.supported设置为true，同时要引入discovery-plugin-strategy-starter-hystrix包，否则线程切换时会发生ThreadLocal上下文对象丢失。缺失则默认为false
+spring.application.strategy.hystrix.threadlocal.supported=true
 ```
 
 ### 内置文件配置
@@ -6119,6 +6208,14 @@ spring.application.strategy.business.request.headers=user;mobile;location
 - Docker Desktop
 
 ![](http://nepxion.gitee.io/discovery/docs/discovery-doc/Docker.jpg)
+
+- Docker Windows
+
+![](http://nepxion.gitee.io/discovery/docs/polaris-doc/DockerWindows.jpg)
+
+- Docker Linux
+
+![](http://nepxion.gitee.io/discovery/docs/polaris-doc/DockerLinux.jpg)
 
 ### Kubernetes平台支持
 请自行研究
@@ -6583,6 +6680,99 @@ zuul.semaphore.max-semaphores=5000
 | Spring Cloud Gateway为起始的调用链 | 本框架 | 5000 | 20000 | 27800左右 | CPU占用率42.3% |
 | Zuul 1.x为起始的调用链 | 原生框架 | 5000 | 20000 | 24050左右 | CPU占用率56% |
 | Zuul 1.x为起始的调用链 | 本框架 | 5000 | 20000 | 23500左右 | CPU占用率56.5% |
+
+## 附录
+
+### 中间件服务器下载地址
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information_message.png) 注册中心
+
+① Nacos
+
+- Nacos服务器版本，推荐用最新版本，从[https://github.com/alibaba/nacos/releases](https://github.com/alibaba/nacos/releases)获取
+- 功能界面主页，[http://localhost:8848/nacos/index.html](http://localhost:8848/nacos/index.html)
+
+② Consul
+
+- Consul服务器版本不限制，推荐用最新版本，从[https://releases.hashicorp.com/consul/](https://releases.hashicorp.com/consul/)获取
+- 功能界面主页，[http://localhost:8500](http://localhost:8500)
+
+③ Eureka
+
+- 跟Spring Cloud版本保持一致，自行搭建服务器
+- 功能界面主页，[http://localhost:9528](http://localhost:9528)
+
+④ Zookeeper
+
+- Spring Cloud F版或以上，必须采用Zookeeper服务器的3.5.x服务器版本（或者更高），从[http://zookeeper.apache.org/releases.html#download](http://zookeeper.apache.org/releases.html#download)获取
+- Spring Cloud E版，Zookeeper服务器版本不限制
+
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information_message.png) 配置中心
+
+① Nacos
+
+- Nacos服务器版本，推荐用最新版本，从[https://github.com/alibaba/nacos/releases](https://github.com/alibaba/nacos/releases)获取
+- 功能界面主页，[http://localhost:8848/nacos/index.html](http://localhost:8848/nacos/index.html)
+
+② Apollo
+
+- Apollo服务器版本，推荐用最新版本，从[https://github.com/ctripcorp/apollo/releases](https://github.com/ctripcorp/apollo/releases)获取
+- 功能界面主页，[http://localhost:8088](http://localhost:8088)
+
+③ Redis
+
+- Redis服务器版本，推荐用最新版本，从[https://redis.io](https://redis.io)获取
+
+④ Etcd
+
+- Etcd服务器版本，推荐用最新版本，从[https://github.com/etcd-io/etcd/releases](https://github.com/etcd-io/etcd/releases)获取
+
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information_message.png) 限流熔断
+
+① Sentinel
+
+- Sentinel服务器版本，推荐用最新版本，从[https://github.com/alibaba/Sentinel/releases](https://github.com/alibaba/Sentinel/releases)获取
+- 功能界面主页，[http://localhost:8075/#/dashboard](http://localhost:8075/#/dashboard)
+
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information_message.png) 调用链监控
+
+① Jaeger
+
+- Jaeger服务器版本，推荐用最新版本，从[https://github.com/jaegertracing/jaeger/releases](https://github.com/jaegertracing/jaeger/releases)获取
+- 功能界面主页，[http://localhost:16686](http://localhost:16686)
+
+② SkyWalking
+
+- SkyWalking服务器版本，推荐用最新版本，从[http://skywalking.apache.org/downloads](http://skywalking.apache.org/downloads)获取
+- 功能界面主页，[http://127.0.0.1:8080/](http://127.0.0.1:8080/)
+
+③ Zipkin
+
+- Zipkin服务器版本，推荐用最新版本，从[https://search.maven.org/remote_content?g=io.zipkin&a=zipkin-server&v=LATEST&c=exec](https://search.maven.org/remote_content?g=io.zipkin&a=zipkin-server&v=LATEST&c=exec)获取
+- 功能界面主页，[http://localhost:9411/zipkin](http://localhost:9411/zipkin)
+
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information_message.png) 指标监控
+
+① Prometheus
+
+- Prometheus服务器版本，推荐用最新版本，从[https://github.com/prometheus/prometheus/releases](https://github.com/prometheus/prometheus/releases)获取
+- 功能界面主页，[http://localhost:9090](http://localhost:9090)
+
+② Grafana
+
+- Grafana服务器版本，推荐用最新版本，从[https://grafana.com/grafana/download?platform=windows](https://grafana.com/grafana/download?platform=windows)获取
+- 功能界面主页，[http://localhost:3000](http://localhost:3000)
+
+③ Spring Boot Admin
+
+- 跟Spring Boot版本保持一致，自行搭建服务器。从[https://github.com/codecentric/spring-boot-admin](https://github.com/codecentric/spring-boot-admin)获取
+- 功能界面主页，[http://localhost:6002](http://localhost:6002)
+
+![](http://nepxion.gitee.io/discovery/docs/icon-doc/information_message.png) 数据库
+
+① H2内存数据库
+
+- H2内存数据库服务器版本，推荐用最新版本，从[http://h2database.com/html/download.html](http://h2database.com/html/download.html)获取
+- 功能界面主页，[http://localhost:8082](http://localhost:8082)
 
 ## Star走势图
 [![Stargazers over time](https://starchart.cc/Nepxion/Discovery.svg)](https://starchart.cc/Nepxion/Discovery)

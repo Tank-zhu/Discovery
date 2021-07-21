@@ -19,7 +19,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.nepxion.discovery.plugin.framework.loadbalance.WeightRandomLoadBalance;
 import com.netflix.loadbalancer.Server;
 
-public abstract class AbstractMapWeightRandomLoadBalance<T> implements WeightRandomLoadBalance<T> {
+public abstract class AbstractDivisorWeightRandomLoadBalance<T> implements WeightRandomLoadBalance<T> {
+    private DivisorWeightRandom<Server> weightRandom = new DivisorWeightRandom<Server>();
+
     @Override
     public Server choose(List<Server> serverList, T t) {
         if (CollectionUtils.isEmpty(serverList)) {
@@ -32,8 +34,6 @@ public abstract class AbstractMapWeightRandomLoadBalance<T> implements WeightRan
             weightList.add(new ImmutablePair<Server, Integer>(server, weight));
         }
 
-        MapWeightRandom<Server, Integer> weightRandom = new MapWeightRandom<Server, Integer>(weightList);
-
-        return weightRandom.random();
+        return weightRandom.random(weightList);
     }
 }
